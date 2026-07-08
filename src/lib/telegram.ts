@@ -1,4 +1,5 @@
 import { formatMoney } from "./i18n";
+import { formatPhoneForDisplay, getWhatsAppUrl } from "./phone";
 import { updateOrderStatus } from "./store";
 import type { Order, OrderStatus } from "./types";
 
@@ -12,6 +13,7 @@ const statusLabels: Record<OrderStatus, string> = {
 export async function sendTelegramOrder(order: Order) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
+  const whatsappUrl = getWhatsAppUrl(order.customer.phone);
 
   if (!token || !chatId) {
     return { skipped: true };
@@ -20,7 +22,7 @@ export async function sendTelegramOrder(order: Order) {
   const lines = [
     `Новый заказ ${order.id}`,
     `Клиент: ${order.customer.name}`,
-    `Телефон: ${order.customer.phone}`,
+    `Телефон: ${formatPhoneForDisplay(order.customer.phone)}`,
     `Получение: ${order.fulfillment.type === "delivery" ? "доставка" : "самовывоз"}`,
     order.fulfillment.address ? `Адрес: ${order.fulfillment.address}` : "",
     order.fulfillment.comment ? `Комментарий: ${order.fulfillment.comment}` : "",
@@ -41,6 +43,9 @@ export async function sendTelegramOrder(order: Order) {
       text: lines.join("\n"),
       reply_markup: {
         inline_keyboard: [
+          ...(whatsappUrl
+            ? [[{ text: "Написать в WhatsApp", url: whatsappUrl }]]
+            : []),
           [
             { text: "Подтвердить", callback_data: `order:${order.id}:confirmed` },
             { text: "Отклонить", callback_data: `order:${order.id}:rejected` },

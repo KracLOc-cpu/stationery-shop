@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { copy, formatMoney } from "@/lib/i18n";
+import { normalizePhone } from "@/lib/phone";
 import type { FulfillmentType, Locale, Product } from "@/lib/types";
 
 type CartLine = {
@@ -334,13 +335,17 @@ export default function Home() {
               <div className="space-y-2">
                 <input
                   className="h-11 w-full rounded-md border border-black/15 px-3 outline-none focus:border-[#115e59]"
+                  autoComplete="name"
                   placeholder={t.customerName}
                   value={customer.name}
                   onChange={(event) => setCustomer({ ...customer, name: event.target.value })}
                 />
                 <input
                   className="h-11 w-full rounded-md border border-black/15 px-3 outline-none focus:border-[#115e59]"
+                  autoComplete="tel"
+                  inputMode="tel"
                   placeholder={t.phone}
+                  type="tel"
                   value={customer.phone}
                   onChange={(event) => setCustomer({ ...customer, phone: event.target.value })}
                 />
@@ -364,7 +369,7 @@ export default function Home() {
 
               <button
                 className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#115e59] font-semibold text-white disabled:bg-[#94a3b8]"
-                disabled={isSending || !customer.name || !customer.phone}
+                disabled={isSending || !customer.name || normalizePhone(customer.phone).length < 10}
                 onClick={submitOrder}
               >
                 <Check size={18} />

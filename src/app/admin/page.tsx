@@ -6,6 +6,7 @@ import { readSheet } from "read-excel-file/browser";
 import {
   ArrowLeft,
   CheckCircle2,
+  MessageCircle,
   FileSpreadsheet,
   PackagePlus,
   RefreshCw,
@@ -13,6 +14,7 @@ import {
   Search,
 } from "lucide-react";
 import { formatMoney } from "@/lib/i18n";
+import { formatPhoneForDisplay, getWhatsAppUrl } from "@/lib/phone";
 import type { Order, OrderStatus, Product, ProductInput } from "@/lib/types";
 
 const emptyProduct: ProductInput = {
@@ -33,6 +35,19 @@ const statusLabels: Record<OrderStatus, string> = {
   rejected: "Отклонен",
   completed: "Завершен",
 };
+
+const statusStyles: Record<OrderStatus, string> = {
+  new: "bg-[#fff7ed] text-[#c2410c]",
+  confirmed: "bg-[#e8f3ef] text-[#115e59]",
+  rejected: "bg-[#fee2e2] text-[#b42318]",
+  completed: "bg-[#eef2ff] text-[#3730a3]",
+};
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat("ru-KZ", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value));
 
 export default function AdminPage() {
   const [password, setPassword] = useState(() =>
@@ -165,7 +180,7 @@ export default function AdminPage() {
             На сайт
           </Link>
           <h1 className="text-xl font-semibold">Панель продавца</h1>
-          <p className="mt-1 text-sm text-[#667085]">Пароль по умолчанию: admin123</p>
+          <p className="mt-1 text-sm text-[#667085]">Введите пароль продавца</p>
           <input
             className="mt-4 h-11 w-full rounded-md border border-black/15 px-3 outline-none focus:border-[#115e59]"
             type="password"
@@ -312,48 +327,91 @@ export default function AdminPage() {
 
         <section className="space-y-5">
           <div className="rounded-md border border-black/10 bg-white p-4 shadow-sm">
-            <h2 className="mb-3 text-lg font-semibold">Заказы</h2>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Заказы</h2>
+              <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                <span className="rounded-md bg-[#fff7ed] px-2 py-1 text-[#c2410c]">
+                  Новые: {orders.filter((order) => order.status === "new").length}
+                </span>
+                <span className="rounded-md bg-[#e8f3ef] px-2 py-1 text-[#115e59]">
+                  Подтверждено: {orders.filter((order) => order.status === "confirmed").length}
+                </span>
+              </div>
+            </div>
             <div className="space-y-3">
               {orders.length === 0 && <p className="text-sm text-[#667085]">Заказов пока нет</p>}
-              {orders.map((order) => (
-                <article key={order.id} className="rounded-md border border-black/10 p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h3 className="font-semibold">{order.id}</h3>
-                      <p className="text-sm text-[#667085]">
-                        {order.customer.name} · {order.customer.phone}
-                      </p>
-                    </div>
-                    <span className="rounded-md bg-[#f1f5f9] px-2 py-1 text-sm font-semibold">
-                      {statusLabels[order.status]}
-                    </span>
-                  </div>
-                  <div className="mt-3 space-y-1 text-sm">
-                    {order.items.map((item) => (
-                      <div key={item.productId} className="flex justify-between gap-3">
-                        <span>
-                          {item.nameRu} x {item.quantity}
-                        </span>
-                        <strong>{formatMoney(item.price * item.quantity)}</strong>
+              {orders.map((order) => {
+                const whatsappUrl = getWhatsAppUrl(order.customer.phone);
+
+                return (
+                  <article key={order.id} className="rounded-md border border-black/10 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <h3 className="font-semibold">{order.id}</h3>
+                        <p className="text-sm text-[#667085]">
+                          {formatDate(order.createdAt)}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-3">
-                    <strong>{formatMoney(order.total)}</strong>
-                    <div className="flex flex-wrap gap-2">
-                      {(["confirmed", "rejected", "completed"] as OrderStatus[]).map((status) => (
-                        <button
-                          key={status}
-                          className="h-9 rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-[#f8fafc]"
-                          onClick={() => updateStatus(order, status)}
-                        >
-                          {statusLabels[status]}
-                        </button>
+                      <span
+                        className={`rounded-md px-2 py-1 text-sm font-semibold ${statusStyles[order.status]}`}
+                      >
+                        {statusLabels[order.status]}
+                      </span>
+                    </div>
+                    <div className="mt-3 rounded-md bg-[#f8fafc] p-3 text-sm">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <strong>{order.customer.name}</strong>
+                        <span className="text-[#667085]">
+                          {formatPhoneForDisplay(order.customer.phone)}
+                        </span>
+                        {whatsappUrl && (
+                          <a
+                            className="inline-flex h-8 items-center gap-1 rounded-md bg-[#25d366] px-2 text-xs font-semibold text-white"
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <MessageCircle size={14} />
+                            WhatsApp
+                          </a>
+                        )}
+                      </div>
+                      <p className="mt-2 text-[#667085]">
+                        {order.fulfillment.type === "delivery" ? "Доставка" : "Самовывоз"}
+                        {order.fulfillment.address ? ` · ${order.fulfillment.address}` : ""}
+                      </p>
+                      {order.fulfillment.comment && (
+                        <p className="mt-1 text-[#667085]">{order.fulfillment.comment}</p>
+                      )}
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm">
+                      {order.items.map((item) => (
+                        <div key={item.productId} className="flex justify-between gap-3">
+                          <span>
+                            {item.nameRu} x {item.quantity}
+                          </span>
+                          <strong>{formatMoney(item.price * item.quantity)}</strong>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                </article>
-              ))}
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-3">
+                      <strong>{formatMoney(order.total)}</strong>
+                      <div className="flex flex-wrap gap-2">
+                        {(["confirmed", "rejected", "completed"] as OrderStatus[]).map((status) => (
+                          <button
+                            key={status}
+                            className="h-9 rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-[#f8fafc]"
+                            onClick={() => updateStatus(order, status)}
+                            disabled={order.status === status}
+                          >
+                            {statusLabels[status]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
 

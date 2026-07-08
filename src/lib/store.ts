@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { formatPhoneForDisplay } from "./phone";
 import { getSupabaseAdmin } from "./supabase";
 import { seedProducts } from "./seed";
 import type {
@@ -253,7 +254,7 @@ export async function createOrder(input: OrderInput): Promise<Order> {
     id: `KZ-${Date.now().toString().slice(-6)}`,
     customer: {
       name: input.customer.name.trim(),
-      phone: input.customer.phone.trim(),
+      phone: formatPhoneForDisplay(input.customer.phone.trim()),
     },
     fulfillment: input.fulfillment,
     items,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizePhone } from "@/lib/phone";
 import { createOrder } from "@/lib/store";
 import { sendTelegramOrder } from "@/lib/telegram";
 import type { OrderInput } from "@/lib/types";
@@ -9,6 +10,10 @@ export async function POST(request: Request) {
 
     if (!body.customer?.name || !body.customer?.phone || !body.items?.length) {
       return NextResponse.json({ message: "Заполните имя, телефон и корзину" }, { status: 400 });
+    }
+
+    if (normalizePhone(body.customer.phone).length < 10) {
+      return NextResponse.json({ message: "Укажите корректный номер телефона" }, { status: 400 });
     }
 
     if (body.fulfillment?.type === "delivery" && !body.fulfillment.address.trim()) {
