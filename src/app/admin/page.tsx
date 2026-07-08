@@ -58,6 +58,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [productForm, setProductForm] = useState<ProductInput>(emptyProduct);
   const [query, setQuery] = useState("");
+  const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
   const [notice, setNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,6 +69,15 @@ export default function AdminPage() {
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
+  const filteredOrders = orders.filter((order) =>
+    orderFilter === "all" ? true : order.status === orderFilter,
+  );
+  const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
+  const activeProducts = products.filter((product) => product.active).length;
+  const openOrders = orders.filter((order) => order.status === "new").length;
+  const confirmedTotal = orders
+    .filter((order) => order.status === "confirmed" || order.status === "completed")
+    .reduce((sum, order) => sum + order.total, 0);
 
   const loadAdminData = async () => {
     setIsLoading(true);
@@ -173,16 +183,19 @@ export default function AdminPage() {
 
   if (!isUnlocked) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f6f4ef] px-4 text-[#1f2933]">
+      <main className="grid min-h-screen place-items-center bg-[#f7f4ed] px-4 text-[#1f2933]">
         <section className="w-full max-w-sm rounded-md border border-black/10 bg-white p-5 shadow-sm">
           <Link href="/" className="mb-4 inline-flex items-center gap-2 text-sm text-[#115e59]">
             <ArrowLeft size={16} />
             На сайт
           </Link>
-          <h1 className="text-xl font-semibold">Панель продавца</h1>
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-[#0f766e] text-white">
+            <PackagePlus size={22} />
+          </div>
+          <h1 className="text-xl font-bold">Панель продавца</h1>
           <p className="mt-1 text-sm text-[#667085]">Введите пароль продавца</p>
           <input
-            className="mt-4 h-11 w-full rounded-md border border-black/15 px-3 outline-none focus:border-[#115e59]"
+            className="mt-4 h-11 w-full rounded-md border border-black/15 px-3 outline-none focus:border-[#0f766e]"
             type="password"
             value={password}
             placeholder="Пароль"
@@ -192,7 +205,7 @@ export default function AdminPage() {
             }}
           />
           <button
-            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#115e59] font-semibold text-white"
+            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#0f766e] font-bold text-white hover:bg-[#115e59]"
             onClick={loadAdminData}
           >
             <CheckCircle2 size={18} />
@@ -205,28 +218,28 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f4ef] text-[#1f2933]">
-      <header className="border-b border-black/10 bg-white">
+    <main className="min-h-screen bg-[#f7f4ed] text-[#1f2933]">
+      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#fbfaf6]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-4 md:px-8">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-[#115e59]">
             <ArrowLeft size={16} />
             На сайт
           </Link>
-          <h1 className="flex-1 text-xl font-semibold">Панель продавца</h1>
+          <h1 className="flex-1 text-xl font-black">Панель продавца</h1>
           <label className="relative w-full md:w-72">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
               size={18}
             />
             <input
-              className="h-10 w-full rounded-md border border-black/15 pl-10 pr-3 outline-none focus:border-[#115e59]"
+              className="h-10 w-full rounded-md border border-black/15 bg-white pl-10 pr-3 outline-none focus:border-[#0f766e]"
               placeholder="Поиск товаров"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <button
-            className="inline-flex h-10 items-center gap-2 rounded-md border border-black/15 px-3 text-sm font-semibold"
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-black/15 bg-white px-3 text-sm font-bold hover:border-[#0f766e]"
             onClick={loadAdminData}
           >
             <RefreshCw size={16} />
@@ -326,6 +339,20 @@ export default function AdminPage() {
         </section>
 
         <section className="space-y-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            {[
+              ["Новые заказы", openOrders],
+              ["Активные товары", activeProducts],
+              ["Остаток всего", totalStock],
+              ["Сумма подтвержд.", formatMoney(confirmedTotal)],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-md border border-black/10 bg-white p-3 shadow-sm">
+                <p className="text-xs font-bold uppercase text-[#64748b]">{label}</p>
+                <p className="mt-1 text-xl font-black">{value}</p>
+              </div>
+            ))}
+          </div>
+
           <div className="rounded-md border border-black/10 bg-white p-4 shadow-sm">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold">Заказы</h2>
@@ -338,9 +365,28 @@ export default function AdminPage() {
                 </span>
               </div>
             </div>
+            <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+              {(["all", "new", "confirmed", "completed", "rejected"] as const).map((status) => (
+                <button
+                  key={status}
+                  className={`h-9 shrink-0 rounded-md border px-3 text-sm font-bold ${
+                    orderFilter === status
+                      ? "border-[#0f766e] bg-[#0f766e] text-white"
+                      : "border-black/15 bg-white hover:border-[#0f766e]"
+                  }`}
+                  onClick={() => setOrderFilter(status)}
+                >
+                  {status === "all" ? "Все" : statusLabels[status]}
+                </button>
+              ))}
+            </div>
             <div className="space-y-3">
-              {orders.length === 0 && <p className="text-sm text-[#667085]">Заказов пока нет</p>}
-              {orders.map((order) => {
+              {filteredOrders.length === 0 && (
+                <p className="rounded-md border border-dashed border-black/15 bg-[#fbfaf6] p-6 text-center text-sm text-[#667085]">
+                  Заказов в этом статусе пока нет
+                </p>
+              )}
+              {filteredOrders.map((order) => {
                 const whatsappUrl = getWhatsAppUrl(order.customer.phone);
 
                 return (
