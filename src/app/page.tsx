@@ -174,29 +174,31 @@ export default function Home() {
       </header>
 
       <section className="border-b border-black/10 bg-[#fffdf8]">
-        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-6 md:grid-cols-[1fr_360px] md:px-8 lg:py-8">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 md:grid-cols-[1fr_360px] md:gap-5 md:px-8 md:py-6 lg:py-8">
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-md bg-[#e8f3ef] px-3 py-2 text-sm font-semibold text-[#0f766e]">
               <Sparkles size={16} />
               Канцтовары с быстрым заказом
             </div>
-            <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight md:text-5xl">
+            <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight sm:text-3xl md:mt-4 md:text-5xl">
               Все для учебы, офиса и творчества в одном каталоге
             </h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#64748b] md:text-lg md:leading-7">
               Выберите товары, оставьте телефон, и продавец подтвердит заказ в Telegram.
               Оплата и доставка уточняются после проверки наличия.
             </p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid grid-cols-3 gap-2 md:mt-5 md:gap-3">
               {[
                 { icon: Package, label: "Товаров", value: products.length || "..." },
                 { icon: ShieldCheck, label: "На складе", value: stockCount || "..." },
                 { icon: Truck, label: "Получение", value: "доставка / самовывоз" },
               ].map((item) => (
-                <div key={item.label} className="rounded-md border border-black/10 bg-white p-3">
+                <div key={item.label} className="rounded-md border border-black/10 bg-white p-2 md:p-3">
                   <item.icon className="mb-2 text-[#0f766e]" size={18} />
-                  <p className="text-xs font-semibold uppercase text-[#64748b]">{item.label}</p>
-                  <p className="mt-1 text-lg font-bold">{item.value}</p>
+                  <p className="text-[10px] font-semibold uppercase text-[#64748b] md:text-xs">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 text-sm font-bold leading-5 md:text-lg">{item.value}</p>
                 </div>
               ))}
             </div>
@@ -206,7 +208,7 @@ export default function Home() {
             {featuredProducts.map((product) => (
               <div
                 key={product.id}
-                className="relative min-h-28 overflow-hidden rounded-md border border-black/10 bg-[#e8e0d4]"
+                className="relative min-h-24 overflow-hidden rounded-md border border-black/10 bg-[#e8e0d4] md:min-h-28"
               >
                 <img
                   src={product.imageUrl}
@@ -346,7 +348,7 @@ export default function Home() {
 
         <aside
           id="checkout"
-          className="h-fit rounded-md border border-black/10 bg-white p-4 shadow-sm md:sticky md:top-24"
+          className="h-fit rounded-md border border-black/10 bg-white p-4 shadow-sm max-md:order-first md:sticky md:top-24"
         >
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -489,7 +491,7 @@ export default function Home() {
       {cartLines.length > 0 && (
         <a
           href="#checkout"
-          className="fixed inset-x-4 bottom-4 z-40 flex h-12 items-center justify-between rounded-md bg-[#0f766e] px-4 font-bold text-white shadow-lg md:hidden"
+          className="fixed inset-x-4 bottom-4 z-40 flex h-14 items-center justify-between rounded-md bg-[#0f766e] px-4 font-bold text-white shadow-lg md:hidden"
         >
           <span>
             {cartItemCount} в корзине · {formatMoney(total)}
