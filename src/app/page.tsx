@@ -9,12 +9,9 @@ import {
   Package,
   Plus,
   Search,
-  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
-  Sparkles,
   Trash2,
-  Truck,
 } from "lucide-react";
 import { copy, formatMoney } from "@/lib/i18n";
 import { normalizePhone } from "@/lib/phone";
@@ -92,8 +89,6 @@ export default function Home() {
 
   const total = cartLines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
   const cartItemCount = cartLines.reduce((sum, line) => sum + line.quantity, 0);
-  const stockCount = products.reduce((sum, product) => sum + product.stock, 0);
-  const featuredProducts = visibleProducts.slice(0, 3);
 
   const setQuantity = (product: Product, quantity: number) => {
     setCart((current) => {
@@ -173,61 +168,24 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="border-b border-black/10 bg-[#fffdf8]">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 md:grid-cols-[1fr_360px] md:gap-5 md:px-8 md:py-6 lg:py-8">
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 rounded-md bg-[#e8f3ef] px-3 py-2 text-sm font-semibold text-[#0f766e]">
-              <Sparkles size={16} />
-              Канцтовары с быстрым заказом
-            </div>
-            <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight sm:text-3xl md:mt-4 md:text-5xl">
-              Все для учебы, офиса и творчества в одном каталоге
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#64748b] md:text-lg md:leading-7">
-              Выберите товары, оставьте телефон, и продавец подтвердит заказ в Telegram.
-              Оплата и доставка уточняются после проверки наличия.
-            </p>
-            <div className="mt-4 grid grid-cols-3 gap-2 md:mt-5 md:gap-3">
-              {[
-                { icon: Package, label: "Товаров", value: products.length || "..." },
-                { icon: ShieldCheck, label: "На складе", value: stockCount || "..." },
-                { icon: Truck, label: "Получение", value: "доставка / самовывоз" },
-              ].map((item) => (
-                <div key={item.label} className="rounded-md border border-black/10 bg-white p-2 md:p-3">
-                  <item.icon className="mb-2 text-[#0f766e]" size={18} />
-                  <p className="text-[10px] font-semibold uppercase text-[#64748b] md:text-xs">
-                    {item.label}
-                  </p>
-                  <p className="mt-1 text-sm font-bold leading-5 md:text-lg">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 md:grid-cols-1">
-            {featuredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="relative min-h-24 overflow-hidden rounded-md border border-black/10 bg-[#e8e0d4] md:min-h-28"
-              >
-                <img
-                  src={product.imageUrl}
-                  alt={locale === "ru" ? product.nameRu : product.nameKk}
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-black/45 px-3 py-2 text-white">
-                  <p className="truncate text-sm font-bold">
-                    {locale === "ru" ? product.nameRu : product.nameKk}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-5 md:grid-cols-[1fr_390px] md:px-8">
+      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-4 md:grid-cols-[1fr_390px] md:px-8">
         <section className="min-w-0">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-black leading-tight md:text-3xl">Каталог канцтоваров</h2>
+              <p className="mt-1 text-sm text-[#64748b]">
+                {products.length ? `${products.length} товаров в наличии` : "Загрузка товаров..."}
+              </p>
+            </div>
+            <a
+              href="#checkout"
+              className="hidden h-10 items-center gap-2 rounded-md bg-[#0f766e] px-3 text-sm font-bold text-white md:inline-flex"
+            >
+              <ShoppingCart size={16} />
+              Корзина: {cartItemCount}
+            </a>
+          </div>
+
           <div className="sticky top-[69px] z-20 mb-4 rounded-md border border-black/10 bg-[#fbfaf6]/95 p-3 shadow-sm backdrop-blur">
             <div className="flex flex-col gap-3 lg:flex-row">
               <label className="relative flex-1">
@@ -348,7 +306,7 @@ export default function Home() {
 
         <aside
           id="checkout"
-          className="h-fit rounded-md border border-black/10 bg-white p-4 shadow-sm max-md:order-first md:sticky md:top-24"
+          className="h-fit rounded-md border border-black/10 bg-white p-4 shadow-sm md:sticky md:top-24"
         >
           <div className="mb-4 flex items-center justify-between">
             <div>
