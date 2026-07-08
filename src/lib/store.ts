@@ -14,6 +14,7 @@ import type {
 
 const dataDir = path.join(process.cwd(), "data");
 const storePath = path.join(dataDir, "store.json");
+let memoryStore: StoreState | null = null;
 
 type ProductRow = {
   id: string;
@@ -96,11 +97,14 @@ const toOrderRow = (order: Order): OrderRow => ({
 });
 
 async function readLocalStore(): Promise<StoreState> {
-  await mkdir(dataDir, { recursive: true });
+  if (memoryStore) {
+    return memoryStore;
+  }
 
   try {
     const raw = await readFile(storePath, "utf8");
-    return JSON.parse(raw) as StoreState;
+    memoryStore = JSON.parse(raw) as StoreState;
+    return memoryStore;
   } catch {
     const initial: StoreState = { products: seedProducts, orders: [] };
     await writeLocalStore(initial);
@@ -109,8 +113,14 @@ async function readLocalStore(): Promise<StoreState> {
 }
 
 async function writeLocalStore(state: StoreState) {
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(storePath, JSON.stringify(state, null, 2), "utf8");
+  memoryStore = state;
+
+  try {
+    await mkdir(dataDir, { recursive: true });
+    await writeFile(storePath, JSON.stringify(state, null, 2), "utf8");
+  } catch {
+    // Serverless hosts often expose a read-only project filesystem.
+  }
 }
 
 export async function listProducts(activeOnly = false): Promise<Product[]> {
