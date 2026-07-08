@@ -22,8 +22,14 @@ npm run dev
 Для Supabase:
 
 1. Создайте проект Supabase.
-2. Выполните SQL из `supabase/schema.sql`.
-3. Укажите `NEXT_PUBLIC_SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` в `.env.local`.
+2. Откройте `SQL Editor` и выполните SQL из `supabase/schema.sql`.
+3. В Supabase откройте `Project Settings -> API`.
+4. Скопируйте `Project URL` в `NEXT_PUBLIC_SUPABASE_URL`.
+5. Скопируйте `service_role` key в `SUPABASE_SERVICE_ROLE_KEY`.
+6. Добавьте эти переменные в Vercel: `Project -> Settings -> Environment Variables`.
+7. Redeploy проекта в Vercel.
+
+Если таблица `products` пустая, приложение автоматически загрузит стартовые демо-товары в Supabase при первом открытии каталога.
 
 ## Telegram
 

@@ -96,6 +96,21 @@ const toOrderRow = (order: Order): OrderRow => ({
   updated_at: order.updatedAt,
 });
 
+async function seedSupabaseProductsIfEmpty(supabase: NonNullable<ReturnType<typeof getSupabaseAdmin>>) {
+  const { count, error: countError } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true });
+
+  if (countError) throw new Error(countError.message);
+  if (count && count > 0) return;
+
+  const { error } = await supabase
+    .from("products")
+    .upsert(seedProducts.map(toProductRow));
+
+  if (error) throw new Error(error.message);
+}
+
 async function readLocalStore(): Promise<StoreState> {
   if (memoryStore) {
     return memoryStore;
@@ -127,6 +142,7 @@ export async function listProducts(activeOnly = false): Promise<Product[]> {
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
+    await seedSupabaseProductsIfEmpty(supabase);
     let query = supabase.from("products").select("*").order("created_at", {
       ascending: false,
     });
