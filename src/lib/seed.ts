@@ -1,0 +1,96 @@
+import type { Product } from "./types";
+
+const now = new Date().toISOString();
+
+export const seedProducts: Product[] = [
+  {
+    id: "notebook-a5",
+    nameRu: "Тетрадь A5 в клетку",
+    nameKk: "A5 тор көз дәптер",
+    descriptionRu: "48 листов, плотная обложка, подходит для школы и офиса.",
+    descriptionKk: "48 бет, тығыз мұқаба, мектеп пен кеңсеге ыңғайлы.",
+    category: "Бумага",
+    price: 390,
+    stock: 120,
+    imageUrl:
+      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "gel-pen-blue",
+    nameRu: "Гелевая ручка синяя",
+    nameKk: "Көк гель қалам",
+    descriptionRu: "Мягкое письмо, толщина линии 0.5 мм.",
+    descriptionKk: "Жұмсақ жазады, сызық қалыңдығы 0.5 мм.",
+    category: "Письмо",
+    price: 250,
+    stock: 86,
+    imageUrl:
+      "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "markers-set",
+    nameRu: "Набор маркеров 12 цветов",
+    nameKk: "12 түсті маркер жинағы",
+    descriptionRu: "Яркие цвета для конспектов, плакатов и творчества.",
+    descriptionKk: "Конспект, плакат және шығармашылыққа ашық түстер.",
+    category: "Творчество",
+    price: 1890,
+    stock: 32,
+    imageUrl:
+      "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "desk-organizer",
+    nameRu: "Органайзер настольный",
+    nameKk: "Үстел органайзері",
+    descriptionRu: "Отделения для ручек, стикеров и мелких офисных вещей.",
+    descriptionKk: "Қалам, стикер және ұсақ кеңсе заттарына арналған.",
+    category: "Офис",
+    price: 2490,
+    stock: 18,
+    imageUrl:
+      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "glue-stick",
+    nameRu: "Клей-карандаш",
+    nameKk: "Желім-қарындаш",
+    descriptionRu: "Без запаха, для бумаги и картона.",
+    descriptionKk: "Иіссіз, қағаз бен картонға арналған.",
+    category: "Школа",
+    price: 320,
+    stock: 54,
+    imageUrl:
+      "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "printer-paper",
+    nameRu: "Бумага A4 500 листов",
+    nameKk: "A4 қағазы 500 бет",
+    descriptionRu: "Белая офисная бумага 80 г/м2.",
+    descriptionKk: "Ақ кеңсе қағазы 80 г/м2.",
+    category: "Бумага",
+    price: 2890,
+    stock: 40,
+    imageUrl:
+      "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=900&q=80",
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  },
+];
