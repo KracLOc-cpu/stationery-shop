@@ -53,6 +53,8 @@ const formatDate = (value: string) =>
     timeStyle: "short",
   }).format(new Date(value));
 
+type AdminTab = "orders" | "products";
+
 export default function AdminPage() {
   const [password, setPassword] = useState(() =>
     typeof window === "undefined" ? "" : localStorage.getItem("admin-password") || "",
@@ -63,6 +65,7 @@ export default function AdminPage() {
   const [productForm, setProductForm] = useState<ProductInput>(emptyProduct);
   const [query, setQuery] = useState("");
   const [orderFilter, setOrderFilter] = useState<OrderStatus | "all">("all");
+  const [adminTab, setAdminTab] = useState<AdminTab>("orders");
   const [notice, setNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -252,18 +255,20 @@ export default function AdminPage() {
             На сайт
           </Link>
           <h1 className="flex-1 text-xl font-black">Панель продавца</h1>
-          <label className="relative w-full md:w-72">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
-              size={18}
-            />
-            <input
-              className="h-10 w-full rounded-md border border-black/15 bg-white pl-10 pr-3 outline-none focus:border-[#0f766e]"
-              placeholder="Поиск товаров"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </label>
+          {adminTab === "products" && (
+            <label className="relative w-full md:w-72">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                size={18}
+              />
+              <input
+                className="h-10 w-full rounded-md border border-black/15 bg-white pl-10 pr-3 outline-none focus:border-[#0f766e]"
+                placeholder="Поиск товаров"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+          )}
           <button
             className="inline-flex h-10 items-center gap-2 rounded-md border border-black/15 bg-white px-3 text-sm font-bold hover:border-[#0f766e]"
             onClick={loadAdminData}
@@ -286,6 +291,34 @@ export default function AdminPage() {
       </header>
 
       <div className="mx-auto grid max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[420px_1fr] md:px-8">
+        <div className="lg:col-span-2">
+          <div className="grid grid-cols-2 gap-2 rounded-md border border-black/10 bg-white p-2 shadow-sm">
+            {[
+              ["orders", `Заказы${openOrders ? ` (${openOrders})` : ""}`],
+              ["products", `Товары (${products.length})`],
+            ].map(([tab, label]) => (
+              <button
+                key={tab}
+                className={`h-11 rounded-md text-sm font-black ${
+                  adminTab === tab
+                    ? "bg-[#0f766e] text-white"
+                    : "text-[#475569] hover:bg-[#f8fafc]"
+                }`}
+                onClick={() => setAdminTab(tab as AdminTab)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {notice && (
+          <div className="rounded-md border border-[#115e59]/20 bg-[#e8f3ef] p-3 text-sm text-[#115e59] lg:col-span-2">
+            {notice}
+          </div>
+        )}
+
+        {adminTab === "products" && (
         <section className="space-y-5">
           <div className="rounded-md border border-black/10 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -387,15 +420,12 @@ export default function AdminPage() {
               Категория, Цена, Остаток, Ссылка на фото.
             </p>
           </div>
-
-          {notice && (
-            <div className="rounded-md border border-[#115e59]/20 bg-[#e8f3ef] p-3 text-sm text-[#115e59]">
-              {notice}
-            </div>
-          )}
         </section>
+        )}
 
-        <section className="space-y-5">
+        <section className={adminTab === "orders" ? "space-y-5 lg:col-span-2" : "space-y-5"}>
+          {adminTab === "orders" && (
+            <>
           <div className="grid gap-3 md:grid-cols-4">
             {[
               ["Новые заказы", openOrders],
@@ -517,7 +547,10 @@ export default function AdminPage() {
               })}
             </div>
           </div>
+            </>
+          )}
 
+          {adminTab === "products" && (
           <div className="rounded-md border border-black/10 bg-white p-4 shadow-sm">
             <h2 className="mb-3 text-lg font-semibold">Товары</h2>
             <div className="grid gap-3 xl:grid-cols-2">
@@ -567,6 +600,7 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+          )}
         </section>
       </div>
     </main>

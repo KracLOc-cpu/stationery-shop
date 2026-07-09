@@ -168,7 +168,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-4 md:grid-cols-[1fr_390px] md:px-8">
+      <div className="mx-auto grid max-w-7xl gap-4 px-3 py-3 sm:px-4 md:grid-cols-[1fr_390px] md:px-8 md:py-4">
         <section className="min-w-0">
           <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -258,37 +258,39 @@ export default function Home() {
                 return (
                   <article
                     key={product.id}
-                    className="group overflow-hidden rounded-md border border-black/10 bg-white shadow-sm"
+                    className="group grid grid-cols-[118px_1fr] overflow-hidden rounded-md border border-black/10 bg-white shadow-sm sm:block"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-[#e9e3d7]">
+                    <div className="relative min-h-full overflow-hidden bg-[#e9e3d7] sm:aspect-[4/3]">
                       <img
                         src={product.imageUrl}
                         alt={title}
                         className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                         loading="lazy"
                       />
-                      <span className="absolute left-3 top-3 rounded-md bg-white/95 px-2 py-1 text-xs font-bold text-[#0f766e] shadow-sm">
+                      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-white/95 px-2 py-1 text-[11px] font-bold text-[#0f766e] shadow-sm sm:left-3 sm:top-3 sm:text-xs">
                         {product.category}
                       </span>
                     </div>
-                    <div className="space-y-3 p-4">
+                    <div className="flex min-w-0 flex-col justify-between gap-3 p-3 sm:block sm:space-y-3 sm:p-4">
                       <div>
-                        <h3 className="text-base font-bold leading-6">{title}</h3>
-                        <p className="mt-1 line-clamp-2 text-sm leading-5 text-[#64748b]">
+                        <h3 className="line-clamp-2 text-[15px] font-bold leading-5 sm:text-base sm:leading-6">
+                          {title}
+                        </h3>
+                        <p className="mt-1 hidden text-sm leading-5 text-[#64748b] sm:line-clamp-2">
                           {description}
                         </p>
                       </div>
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-end justify-between gap-2">
                         <div>
-                          <p className="text-xl font-black">{formatMoney(product.price)}</p>
-                          <p className="text-sm text-[#64748b]">
+                          <p className="text-lg font-black sm:text-xl">{formatMoney(product.price)}</p>
+                          <p className="text-xs text-[#64748b] sm:text-sm">
                             {product.stock > 0 ? `${t.stock}: ${product.stock}` : t.out}
                           </p>
                         </div>
                         {quantity > 0 ? (
-                          <div className="flex h-11 items-center rounded-md border border-black/15 bg-[#f8fafc]">
+                          <div className="flex h-10 items-center rounded-md border border-black/15 bg-[#f8fafc]">
                             <button
-                              className="grid h-11 w-10 place-items-center"
+                              className="grid h-10 w-9 place-items-center"
                               onClick={() => setQuantity(product, quantity - 1)}
                               aria-label="Decrease quantity"
                             >
@@ -296,7 +298,7 @@ export default function Home() {
                             </button>
                             <span className="w-8 text-center text-sm font-bold">{quantity}</span>
                             <button
-                              className="grid h-11 w-10 place-items-center"
+                              className="grid h-10 w-9 place-items-center"
                               onClick={() => setQuantity(product, quantity + 1)}
                               aria-label="Increase quantity"
                             >
@@ -305,7 +307,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <button
-                            className="inline-flex h-11 items-center gap-2 rounded-md bg-[#d9480f] px-3 text-sm font-bold text-white hover:bg-[#c2410c] disabled:bg-[#cbd5e1]"
+                            className="inline-flex h-10 items-center gap-2 rounded-md bg-[#d9480f] px-3 text-sm font-bold text-white hover:bg-[#c2410c] disabled:bg-[#cbd5e1]"
                             disabled={product.stock === 0}
                             onClick={() => setQuantity(product, 1)}
                           >
@@ -444,6 +446,10 @@ export default function Home() {
                   onChange={(event) => setCustomer({ ...customer, comment: event.target.value })}
                 />
               </div>
+
+              <p className="rounded-md border border-[#0f766e]/15 bg-[#e8f3ef] p-3 text-xs leading-5 text-[#115e59]">
+                {t.contactNote}
+              </p>
 
               <button
                 className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#0f766e] font-bold text-white hover:bg-[#115e59] disabled:bg-[#94a3b8]"
