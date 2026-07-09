@@ -232,6 +232,24 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {visibleProducts.length === 0 && (
+                <div className="rounded-md border border-dashed border-black/15 bg-white p-8 text-center sm:col-span-2 xl:col-span-3">
+                  <Search className="mx-auto mb-3 text-[#0f766e]" size={30} />
+                  <h3 className="text-lg font-black">Ничего не найдено</h3>
+                  <p className="mt-1 text-sm text-[#64748b]">
+                    Попробуйте изменить запрос или выбрать другую категорию.
+                  </p>
+                  <button
+                    className="mt-4 h-10 rounded-md border border-black/15 px-3 text-sm font-bold hover:border-[#0f766e]"
+                    onClick={() => {
+                      setQuery("");
+                      setCategory("all");
+                    }}
+                  >
+                    Показать все товары
+                  </button>
+                </div>
+              )}
               {visibleProducts.map((product) => {
                 const title = locale === "ru" ? product.nameRu : product.nameKk;
                 const description = locale === "ru" ? product.descriptionRu : product.descriptionKk;

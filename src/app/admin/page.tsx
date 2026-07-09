@@ -6,10 +6,14 @@ import { readSheet } from "read-excel-file/browser";
 import {
   ArrowLeft,
   CheckCircle2,
+  Eye,
+  EyeOff,
   MessageCircle,
   FileSpreadsheet,
+  LogOut,
   PackagePlus,
   RefreshCw,
+  RotateCcw,
   Save,
   Search,
 } from "lucide-react";
@@ -109,6 +113,11 @@ export default function AdminPage() {
   }, [isUnlocked, password]);
 
   const saveProduct = async () => {
+    if (!productForm.nameRu.trim() || !productForm.price || !productForm.imageUrl.trim()) {
+      setNotice("Заполните название, цену и ссылку на фото");
+      return;
+    }
+
     const response = await fetch(
       productForm.id ? `/api/admin/products/${productForm.id}` : "/api/admin/products",
       {
@@ -124,6 +133,23 @@ export default function AdminPage() {
     }
     setNotice("Товар сохранен");
     setProductForm(emptyProduct);
+    await loadAdminData();
+  };
+
+  const toggleProductActive = async (product: Product) => {
+    const response = await fetch(`/api/admin/products/${product.id}`, {
+      method: "PUT",
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify({ ...product, active: !product.active }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      setNotice(data.message || "Ошибка обновления товара");
+      return;
+    }
+
+    setNotice(product.active ? "Товар скрыт с витрины" : "Товар возвращен на витрину");
     await loadAdminData();
   };
 
@@ -245,16 +271,38 @@ export default function AdminPage() {
             <RefreshCw size={16} />
             {isLoading ? "..." : "Обновить"}
           </button>
+          <button
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-black/15 bg-white px-3 text-sm font-bold hover:border-[#b42318] hover:text-[#b42318]"
+            onClick={() => {
+              localStorage.removeItem("admin-password");
+              setPassword("");
+              setIsUnlocked(false);
+            }}
+          >
+            <LogOut size={16} />
+            Выйти
+          </button>
         </div>
       </header>
 
       <div className="mx-auto grid max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[420px_1fr] md:px-8">
         <section className="space-y-5">
           <div className="rounded-md border border-black/10 bg-white p-4 shadow-sm">
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <PackagePlus size={20} />
-              Товар
-            </h2>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="flex items-center gap-2 text-lg font-semibold">
+                <PackagePlus size={20} />
+                {productForm.id ? "Редактирование товара" : "Новый товар"}
+              </h2>
+              {productForm.id && (
+                <button
+                  className="inline-flex h-9 items-center gap-2 rounded-md border border-black/15 px-3 text-sm font-bold hover:border-[#0f766e]"
+                  onClick={() => setProductForm(emptyProduct)}
+                >
+                  <RotateCcw size={15} />
+                  Новый
+                </button>
+              )}
+            </div>
             <div className="grid gap-2">
               {[
                 ["nameRu", "Название RU"],
@@ -304,6 +352,15 @@ export default function AdminPage() {
                 />
                 Показывать товар на сайте
               </label>
+              {productForm.imageUrl && (
+                <div className="overflow-hidden rounded-md border border-black/10 bg-[#f8fafc]">
+                  <img
+                    src={productForm.imageUrl}
+                    alt="Предпросмотр товара"
+                    className="h-36 w-full object-cover"
+                  />
+                </div>
+              )}
               <button
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#115e59] font-semibold text-white"
                 onClick={saveProduct}
@@ -472,17 +529,39 @@ export default function AdminPage() {
                     className="h-20 w-20 rounded-md object-cover"
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="truncate font-semibold">{product.nameRu}</h3>
-                    <p className="text-sm text-[#667085]">{product.category}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-semibold">{product.nameRu}</h3>
+                        <p className="text-sm text-[#667085]">{product.category}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${
+                          product.active
+                            ? "bg-[#e8f3ef] text-[#115e59]"
+                            : "bg-[#f1f5f9] text-[#64748b]"
+                        }`}
+                      >
+                        {product.active ? "На сайте" : "Скрыт"}
+                      </span>
+                    </div>
                     <p className="text-sm">
                       {formatMoney(product.price)} · остаток {product.stock}
                     </p>
-                    <button
-                      className="mt-2 h-8 rounded-md border border-black/15 px-3 text-sm font-semibold"
-                      onClick={() => setProductForm(product)}
-                    >
-                      Редактировать
-                    </button>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        className="h-8 rounded-md border border-black/15 px-3 text-sm font-semibold hover:border-[#0f766e]"
+                        onClick={() => setProductForm(product)}
+                      >
+                        Редактировать
+                      </button>
+                      <button
+                        className="inline-flex h-8 items-center gap-1 rounded-md border border-black/15 px-3 text-sm font-semibold hover:border-[#0f766e]"
+                        onClick={() => toggleProductActive(product)}
+                      >
+                        {product.active ? <EyeOff size={14} /> : <Eye size={14} />}
+                        {product.active ? "Скрыть" : "Вернуть"}
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
